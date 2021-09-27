@@ -6,4 +6,8 @@
     <RootNamespace>data_access_dapper</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="microsoft.data.sqlclient" Version="3.0.1" />
+  </ItemGroup>
+
 </Project>
