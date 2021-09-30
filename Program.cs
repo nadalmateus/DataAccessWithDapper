@@ -8,9 +8,27 @@ namespace data_access_dapper
     class Program
     {
         static void Main(string[] args)
-        {
-            const string connectionString = "Server=localhost,1433;Database=data;User ID=sa;Password=1q2w3e4r@#$";
 
+        {
+            const string connectionString = "Server=localhost,1433;Database=Data;User ID=sa;Password=1q2w3e4r@#$";
+            using var connection = new SqlConnection(connectionString);
+            UpdateCategory(connection);
+
+            ListCategories(connection);
+            // CreateCategory(connection);
+        }
+
+        static void ListCategories(SqlConnection connection)
+        {
+            var categories = connection.Query<Category>("SELECT [Id], [Title] FROM [Category]");
+            foreach (var item in categories)
+            {
+                Console.WriteLine($"{item.Id},{item.Title}");
+            }
+        }
+
+        static void CreateCategory(SqlConnection connection)
+        {
             var category = new Category
             {
                 Description = "Cloud",
@@ -24,7 +42,6 @@ namespace data_access_dapper
 
             var insertSql = @"INSERT INTO [Category] VALUES(@id, @Title, @Url, @Summary, @Order, @Description, @Featured)";
 
-            using var connection = new SqlConnection(connectionString);
             var rows = connection.Execute(insertSql, new
             {
                 category.Description,
@@ -37,11 +54,19 @@ namespace data_access_dapper
             });
             Console.WriteLine($"{rows} linhas inseridas");
 
-            var categories = connection.Query<Category>("SELECT [Id], [Title] FROM [Category]");
-            foreach (var item in categories)
+        }
+
+        static void UpdateCategory(SqlConnection connection)
+        {
+            var updateQuery = "UPDATE [Category] SET [Title]=@title WHERE [Id]=@id ";
+            var rows = connection.Execute(updateQuery, new
             {
-                Console.WriteLine($"{item.Id},{item.Title}");
-            }
+                id = new Guid("af3407aa-11ae-4621-a2ef-2028b85507c4"),
+                title = "Front-end 2021"
+            });
+
+            Console.WriteLine($"{rows} linhas atualizadas");
+
         }
     }
 }
