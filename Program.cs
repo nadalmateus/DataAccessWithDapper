@@ -1,6 +1,5 @@
 ﻿using System;
-using Blog.Models;
-using Dapper.Contrib.Extensions;
+using Blog.Repositories;
 using Microsoft.Data.SqlClient;
 
 namespace data_access_dapper
@@ -10,78 +9,31 @@ namespace data_access_dapper
         private const string CONNECTION_STRING = @"Server=localhost,1433;Database=Blog;User ID=sa;Password=1q2w3e4r@#$;Trusted_Connection=False; TrustServerCertificate=True";
         static void Main(string[] args)
         {
-            // ReadUsers();
-            // ReadUser();
-            // CreateUser();
-            // UpdateUser();
-            // DeleteUser();
-        }
-        static void ReadUsers()
-        {
-            using var connection = new SqlConnection(CONNECTION_STRING);
-            var users = connection.GetAll<User>();
+            var connection = new SqlConnection(CONNECTION_STRING);
+            connection.Open();
 
-            foreach (var user in users)
-            {
-                Console.WriteLine(user.Name);
-            }
-        }
-        static void ReadUser()
-        {
-            using var connection = new SqlConnection(CONNECTION_STRING);
-            var user = connection.Get<User>(1);
+            ReadUsers(connection);
+            ReadRoles(connection);
 
-            Console.WriteLine(user.Name);
+            connection.Close();
 
         }
 
-        static void CreateUser()
+        public static void ReadUsers(SqlConnection connection)
         {
-            var user = new User()
-            {
-                Bio = "Software Enginner",
-                Email = "nadal@nadal.com",
-                Image = "https",
-                Name = "Nadal",
-                PasswordHash = "HASH",
-                Slug = "Staff"
-            };
+            var repositories = new UserRepository(connection);
+            var users = repositories.Get();
 
-            using var connection = new SqlConnection(CONNECTION_STRING);
-            connection.Insert<User>(user);
-
-            Console.WriteLine("Cadastro realizado com sucesso");
+            foreach (var user in users) Console.WriteLine(user.Name);
 
         }
 
-        static void UpdateUser()
+        public static void ReadRoles(SqlConnection connection)
         {
-            var user = new User()
-            {
-                Id = 2,
-                Bio = "Software Developer",
-                Email = "supp@nadal.com",
-                Image = "https",
-                Name = "Nadal",
-                PasswordHash = "HASH",
-                Slug = "Staff"
-            };
+            var repositories = new RoleRepository(connection);
+            var roles = repositories.Get();
 
-            using var connection = new SqlConnection(CONNECTION_STRING);
-            connection.Update<User>(user);
-
-            Console.WriteLine("Atualização realizada com sucesso");
-
-        }
-
-        static void DeleteUser()
-        {
-            using var connection = new SqlConnection(CONNECTION_STRING);
-
-            var user = connection.Get<User>(2);
-            connection.Delete<User>(user);
-
-            Console.WriteLine("Deleção realizada com sucesso");
+            foreach (var role in roles) Console.WriteLine(role.Name);
 
         }
     }
