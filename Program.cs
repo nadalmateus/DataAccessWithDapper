@@ -1,40 +1,21 @@
-﻿using System;
-using Blog.Repositories;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 
-namespace data_access_dapper
+const string connectionString = "Server=localhost,1433;Database=balta;User ID=sa;Password=1q2w3e4r@#$;Trusted_Connection=False; TrustServerCertificate=True;";
+
+using (var connection = new SqlConnection(connectionString))
 {
-    class Program
+    connection.Open();
+
+    using (var command = new SqlCommand())
     {
-        private const string CONNECTION_STRING = @"Server=localhost,1433;Database=Blog;User ID=sa;Password=1q2w3e4r@#$;Trusted_Connection=False; TrustServerCertificate=True";
-        static void Main(string[] args)
+        command.Connection = connection;
+        command.CommandType = System.Data.CommandType.Text;
+        command.CommandText = "SELECT [Id], [Title] FROM [Category]";
+        var reader = command.ExecuteReader();
+
+        while (reader.Read())
         {
-            var connection = new SqlConnection(CONNECTION_STRING);
-            connection.Open();
-
-            ReadUsers(connection);
-            ReadRoles(connection);
-
-            connection.Close();
-
-        }
-
-        public static void ReadUsers(SqlConnection connection)
-        {
-            var repositories = new UserRepository(connection);
-            var users = repositories.Get();
-
-            foreach (var user in users) Console.WriteLine(user.Name);
-
-        }
-
-        public static void ReadRoles(SqlConnection connection)
-        {
-            var repositories = new RoleRepository(connection);
-            var roles = repositories.Get();
-
-            foreach (var role in roles) Console.WriteLine(role.Name);
-
+            Console.WriteLine($"{reader.GetGuid(0)} - {reader.GetString(1)}");
         }
     }
 }
